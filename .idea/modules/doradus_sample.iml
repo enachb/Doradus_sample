@@ -20,7 +20,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="SBT: com.dell.doradus:doradus-client:2.1.1:jar" level="project" />
     <orderEntry type="library" name="SBT: com.dell.doradus:doradus-common:2.1.1:jar" level="project" />
     <orderEntry type="library" name="SBT: log4j:log4j:1.2.16:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.5:jar" level="project" />
@@ -38,5 +37,6 @@
     <orderEntry type="library" name="SBT: org.joda:joda-convert:1.7:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang:scala-reflect:2.11.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-stm:scala-stm_2.11:0.7:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.dell.doradus:doradus-client:2.3:jar" level="project" />
   </component>
 </module>
