@@ -14,10 +14,6 @@ import scala.util.Random
  *
  * Start Doradus
  *
- * java -Xmx2G -cp $(find . -iname *jar | tr '\n' ':') com.dell.doradus.core.DoradusServer -restport 5711
- *
- * Or with config file
- * -------------------
  *
  * java -Xmx2G -Xms2G -cp ./doradus.yaml:$(find . -iname *jar | tr '\n' ':') com.dell.doradus.core.DoradusServer -restport 5711
  *
@@ -50,6 +46,7 @@ import scala.util.Random
  */
 object MainEvents extends App {
 
+  // Serialize case class into Map
   def getCCParams(cc: AnyRef) =
     (Map[String, Any]() /: cc.getClass.getDeclaredFields) { (a, f) =>
       f.setAccessible(true)
@@ -187,7 +184,7 @@ object MainEvents extends App {
 
         i += 1
 
-        if (i % 10000 == 0) {
+        if (i % 100 == 0) {
           val rackRes = vps.addBatch("s1", rackBatch)
           //          val
           //          cacheBlockRes = vps.addBatch("cacheBlock", cacheBlockBatch)
@@ -197,7 +194,7 @@ object MainEvents extends App {
           //          println(cacheBlockRes.getFailedObjectIDs)
         }
 
-        if (i % 50000 == 0) {
+        if (i % 600 == 0) {
           println("Merging...")
           vps.mergeShard("s1", null)
           //          vps.mergeShard("cacheBlock", null)
