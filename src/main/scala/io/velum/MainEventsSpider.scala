@@ -106,15 +106,6 @@ object MainEventsSpider extends App {
         |}
         | """.stripMargin, ContentType.
         APPLICATION_JSON)
-    //          "sharding-field": "time",
-    //  "sharding-granularity": "DAY"
-    // ,
-    //  "cacheBlock": {"type": "XLINK", "table": "cacheBlock", "inverse": "rack", "junction": "_ID"}
-
-
-    //,
-    //"rack": {"type": "XLINK", "table": "rack", "inverse": "cacheBlock", "junction": "_ID"}
-
 
     val vps = client.openApplication("vps").asInstanceOf[SpiderSession]
 
@@ -122,14 +113,8 @@ object MainEventsSpider extends App {
 
     val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
-    val rackBatch = new DBObjectBatch()
-    val cacheBlockBatch = new DBObjectBatch()
-
     (0 to 1000000 * 1000).foreach {
       l =>
-        //        val psuBlockBatch = new DBObjectBatch()
-        //        val psusBatch = new DBObjectBatch()
-        //        val cacheBatch = new DBObjectBatch()
 
         val _ID = java.util.UUID.randomUUID.toString
 
@@ -147,65 +132,13 @@ object MainEventsSpider extends App {
           )
         )
 
-        //        rackBatch.addObject(
-        //          createObj("cacheBlock", "s1", _ID, Map(
-        //            "state" -> Random.shuffle(List("ACTIVE", "OFFLINE", "SUSPENDED")).head,
-        //            "host" -> s"http://${ip}:8080",
-        //            "modelNumber" -> Random.shuffle(List("Model-V", "Model-A", "Model-B", "Model-C")).head,
-        //            "manufacturer" -> Random.shuffle(List("Artesyn", "VPS", "StackVelocity", "enArka")).head,
-        //            "serial" -> Random.nextLong().toString,
-        //            "firmwareVer" -> s"${Random.nextInt(10)}.${Random.nextInt(10)}.${Random.nextInt(10)}",
-        //            "manufacturerDate" -> format.format(new Date(System.currentTimeMillis() - Math.abs(Random.nextInt())))
-        //          )
-        //          )
-        //        )
-
-        //        val
-        //        cacheBlock = new DBObject()
-        //        val cBID = l + ":c:" + java.util.UUID.randomUUID.toString
-        //        cacheBlock.addFieldValue("_ID", cBID)
-        //        cacheBlock.addFieldValue("maxCacheSlots", 5.toString)
-        //        cacheBlock.addFieldValue("modelNumber", Random.shuffle(
-        //          List("Model-V", "Model-A", "Model-B", "Model-C")).head)
-        //        cacheBlock.addFieldValue("manufacturer", Random.
-        //          shuffle(List("Artesyn", "VPS", "StackVelocity", "enArka")).head)
-        //        cacheBlock.addFieldValue("serial", Random
-        //          .nextLong().toString)
-        //        cacheBlock.addFieldValue(
-        //          "firmwareVer", s"${Random.nextInt(10)}.${Random.nextInt(10)}.${Random.nextInt(10)}")
-        //        //      cacheBlock.addFieldValue(
-        //        //        "rack", _ID)
-        //        cacheBlock.setTableName("cacheBlock")
-        //        cacheBlock.setShardName("rack")
-        //        cacheBlockBatch.addObject(cacheBlock)
-
         i += 1
 
         if (i % 100 == 0) {
           println(i + " " + objRes.getErrorMessage)
-//          println(objRes.getFailedObjectIDs)
         }
 
     }
-
-    //        if (i % 100 == 0) {
-    //          val rackRes = vps.addBatch("s1", rackBatch)
-    //          //          val
-    //          //          cacheBlockRes = vps.addBatch("cacheBlock", cacheBlockBatch)
-    //          println(i + " " + rackRes.getErrorMessage)
-    //          println(rackRes.getFailedObjectIDs)
-    //          //          println(i + " " + cacheBlockRes.getErrorMessage)
-    //          //          println(cacheBlockRes.getFailedObjectIDs)
-    //        }
-    //
-    //        if (i % 600 == 0) {
-    //          println("Merging...")
-    ////          vps.mergeShard("s1", null)
-    //          //          vps.mergeShard("cacheBlock", null)
-    //          rackBatch.clear()
-    //          cacheBlockBatch.clear()
-    //        }
-
 
   } catch {
 
