@@ -1,14 +1,12 @@
 package io.velum
 
-package io.velum
-
 import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.dell.doradus.client.{Client, SpiderSession}
 import com.dell.doradus.common._
 
-import scala.util.Random
+import scala.util.{Try, Random}
 
 
 /**
@@ -50,21 +48,16 @@ object MainEventsSpider extends App {
       a + (f.getName -> f.get(cc))
     }
 
-  try {
-
-    //    def ip: String = Random.nextInt(256) + "." + Random.nextInt(256) + "." + Random.nextInt(256) + "." + Random.nextInt(256)
-
-    def createObj(tableName: String, id: String, items: Map[String, String]): DBObject = {
-      val obj = new DBObject(id, tableName)
-      items.foreach {
-        case (key, value) =>
-          obj.addFieldValue(key, value)
-      }
-      obj
+  def createObj(tableName: String, id: String, items: Map[String, String]): DBObject = {
+    val obj = new DBObject(id, tableName)
+    items.foreach {
+      case (key, value) =>
+        obj.addFieldValue(key, value)
     }
+    obj
+  }
 
-    val client = new Client("localhost", 5711)
-
+  def setup(client: Client) = {
     val app = client.createApplication(
       """{"vps": {
         |       "key": "name",
@@ -106,47 +99,54 @@ object MainEventsSpider extends App {
         |}
         | """.stripMargin, ContentType.
         APPLICATION_JSON)
+  }
+  
+  def spiderTestCaseRunner(): Unit = {
+    val client = new Client("localhost", 1123)
 
+    setup(client)
+    
     val vps = client.openApplication("vps").asInstanceOf[SpiderSession]
 
-    var i = 0
+    loadMillionEntriesTest(vps)
 
-    val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
-    (0 to 1000000 * 1000).foreach {
-      l =>
+  }
 
-        val _ID = java.util.UUID.randomUUID.toString
+  //Load a million entries into spider without an issue
+  def loadMillionEntriesTest(vps: SpiderSession) = {
+    Try {
+      var i = 0
 
-        val objRes = vps.addObject("event",
-          createObj("event", _ID, Map(
-            //            "id" -> java.util.UUID.randomUUID.toString,
-            "timestamp" -> format.format(System.currentTimeMillis()),
-            "eventType" -> Random.shuffle(List("State", "UserAction", "EquipChange", "Fault")).head,
-            "version" -> Random.nextInt(10).toString,
-            "msg" -> Random.shuffle(List("wi tu lo", "deng dong ding", "crash bum bang", "oink")).head,
-            "entity" -> java.util.UUID.randomUUID.toString,
-            "entityType" -> Random.shuffle(List("PSU", "Battery", "SuperCap")).head, //s"${Random.nextInt(10)}.${Random.nextInt(10)}.${Random.nextInt(10)}"
-            "oldValue" -> format.format(new Date(System.currentTimeMillis() - Math.abs(Random.nextInt())))
+      val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+
+      (0 to 1000000).foreach {
+        l =>
+
+          val _ID = java.util.UUID.randomUUID.toString
+
+          val objRes = vps.addObject("event",
+            createObj("event", _ID, Map(
+              "timestamp" -> format.format(System.currentTimeMillis()),
+              "eventType" -> Random.shuffle(List("State", "UserAction", "EquipChange", "Fault")).head,
+              "version" -> Random.nextInt(10).toString,
+              "msg" -> Random.shuffle(List("wi tu lo", "deng dong ding", "crash bum bang", "oink")).head,
+              "entity" -> java.util.UUID.randomUUID.toString,
+              "entityType" -> Random.shuffle(List("PSU", "Battery", "SuperCap")).head,
+              "oldValue" -> format.format(new Date(System.currentTimeMillis() - Math.abs(Random.nextInt())))
+            )
+            )
           )
-          )
-        )
 
-        i += 1
+          i += 1
 
-        if (i % 100 == 0) {
-          println(i + " " + objRes.getErrorMessage)
-        }
-
+          if (i % 100 == 0) {
+            println(i + " " + objRes.getErrorMessage)
+          }
+      }
     }
-
-  } catch {
-
-    case e: Exception =>
-      e.printStackTrace()
   }
 
   println("Done!")
-
 }
 
