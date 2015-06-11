@@ -41,6 +41,8 @@ import scala.util.{Try, Random}
  */
 object MainEventsSpider extends App {
 
+  val client = new Client("localhost", 1123)
+
   // Serialize case class into Map
   def getCCParams(cc: AnyRef) =
     (Map[String, Any]() /: cc.getClass.getDeclaredFields) { (a, f) =>
@@ -58,7 +60,7 @@ object MainEventsSpider extends App {
   }
 
   def setup(client: Client) = {
-    val app = client.createApplication(
+    client.createApplication(
       """{"vps": {
         |       "key": "name",
         |       "options": { "StorageService": "SpiderService" },
@@ -102,25 +104,67 @@ object MainEventsSpider extends App {
   }
   
   def spiderTestCaseRunner(): Unit = {
-    val client = new Client("localhost", 1123)
-
     setup(client)
     
     val vps = client.openApplication("vps").asInstanceOf[SpiderSession]
 
-    loadMillionEntriesTest(vps)
+    val res0 = loadEntriesTest(vps)
+    println(res0)
 
+    val res1 = addPayloadWithFieldsNotInSchema(vps)
+    println(res1)
 
+    val res2 = addPayloadWithIncorrectPayloadType(vps)
+    println(res2)
+  }
+
+  def addPayloadWithIncorrectPayloadType(vps: SpiderSession) = {
+    Try {
+      val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+
+      (0 to 100).foreach {
+        l =>
+          val _ID = java.util.UUID.randomUUID.toString
+
+          vps.addObject("event",
+            createObj("event", _ID, Map(
+              "timestamp" -> format.format(System.currentTimeMillis()),
+              "severity" -> java.util.UUID.randomUUID.toString
+            )))
+      }
+    }
+  }
+
+  def addPayloadWithFieldsNotInSchema(vps: SpiderSession) = {
+    Try {
+      val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+
+      (0 to 100).foreach {
+        l =>
+          val _ID = java.util.UUID.randomUUID.toString
+
+          val f1 = _ID
+          val f2 = s"$l"
+
+          vps.addObject("event",
+            createObj("event", _ID, Map(
+              "timestamp" -> format.format(System.currentTimeMillis()),
+              "eventType" -> Random.shuffle(List("State", "UserAction", "EquipChange", "Fault")).head,
+              f1 -> java.util.UUID.randomUUID.toString,
+              f2 -> l.toString
+            )))
+      }
+    }
   }
 
   //Load a million entries into spider without an issue
-  def loadMillionEntriesTest(vps: SpiderSession) = {
+  def loadEntriesTest(vps: SpiderSession, entryCount: Int = 100000) = {
     Try {
       var i = 0
 
       val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
 
-      (0 to 1000000).foreach {
+      (0 to entryCount).foreach {
         l =>
 
           val _ID = java.util.UUID.randomUUID.toString
@@ -147,6 +191,11 @@ object MainEventsSpider extends App {
     }
   }
 
-  println("Done!")
+  def purgeApplication() = {
+    client.deleteApplication("vps", "name")
+    println("Deleted application")
+  }
+
+  spiderTestCaseRunner()
 }
 
