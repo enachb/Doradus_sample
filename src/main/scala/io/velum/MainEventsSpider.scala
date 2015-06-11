@@ -116,6 +116,29 @@ object MainEventsSpider extends App {
 
     val res2 = addPayloadWithIncorrectPayloadType(vps)
     println(res2)
+
+    val res3 = addPayloadWithSubsetFields(vps)
+    println(res3)
+  }
+
+  def addPayloadWithSubsetFields(vps: SpiderSession) = {
+    Try {
+      val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+
+      (0 to 100).foreach {
+        l =>
+          val _ID = java.util.UUID.randomUUID.toString
+
+          vps.addObject("event",
+            createObj("event", _ID, Map(
+              "timestamp" -> format.format(System.currentTimeMillis()),
+              "eventType" -> "addPayloadWithSubsetFields",
+              "severity" -> "100"
+            )))
+      }
+
+      "Successful addPayloadWithSubsetFields"
+    }
   }
 
   def addPayloadWithIncorrectPayloadType(vps: SpiderSession) = {
