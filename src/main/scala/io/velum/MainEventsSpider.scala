@@ -129,9 +129,11 @@ object MainEventsSpider extends App {
           vps.addObject("event",
             createObj("event", _ID, Map(
               "timestamp" -> format.format(System.currentTimeMillis()),
-              "severity" -> java.util.UUID.randomUUID.toString
+              "severity" -> "abcd"
             )))
       }
+
+      "Successful addPayloadWithIncorrectPayloadType"
     }
   }
 
@@ -151,14 +153,16 @@ object MainEventsSpider extends App {
               "timestamp" -> format.format(System.currentTimeMillis()),
               "eventType" -> Random.shuffle(List("State", "UserAction", "EquipChange", "Fault")).head,
               f1 -> java.util.UUID.randomUUID.toString,
-              f2 -> l.toString
+              f2 -> l.toString,
+              "randomField" -> "randomValue"
             )))
       }
+      "Successful addPayloadWithFieldsNotInSchema"
     }
   }
 
   //Load a million entries into spider without an issue
-  def loadEntriesTest(vps: SpiderSession, entryCount: Int = 100000) = {
+  def loadEntriesTest(vps: SpiderSession, entryCount: Int = 1000) = {
     Try {
       var i = 0
 
@@ -188,6 +192,7 @@ object MainEventsSpider extends App {
             println(i + " " + objRes.getErrorMessage)
           }
       }
+      "Successful loadEntriesTest"
     }
   }
 
@@ -197,5 +202,6 @@ object MainEventsSpider extends App {
   }
 
   spiderTestCaseRunner()
+//  purgeApplication()
 }
 
